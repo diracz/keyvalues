@@ -7,8 +7,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        final Logger logger = Logger.getLogger(App.class);
-
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
 
@@ -19,7 +17,7 @@ public class App {
         jerseyServlet.setInitOrder(0);
 
         // Tells the Jersey Servlet which REST service/class to load.
-        jerseyServlet.setInitParameter("jersey.config.server.provider.classnames", MyResource.class.getCanonicalName());
+        jerseyServlet.setInitParameter("jersey.config.server.provider.classnames", Root.class.getCanonicalName());
 
         try {
             jettyServer.start();
