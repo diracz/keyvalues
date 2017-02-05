@@ -10,6 +10,8 @@ lsof -i tcp:8080
 - mvn and jdk8 setup
 
 ### Building and running
-- mvn clean install
-- mvn dependency:copy-dependencies
-- java -cp "target/dependency/*:target/keyvalues.jar" com.twitter.App
+```
+mvn clean install
+mvn dependency:copy-dependencies
+java -cp "target/dependency/*:target/keyvalues.jar" com.twitter.App
+```
