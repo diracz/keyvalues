@@ -6,8 +6,14 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+/**
+ * A java modeling of a callback object
+ * @author zli
+ *
+ */
 public class Callback {
     static final Logger logger = Logger.getLogger(Callback.class);
+    
     private String id;
     private String url;
 
@@ -32,7 +38,13 @@ public class Callback {
         this.url = url;
     }
 
+    /**
+     * Check the url of the callback, given the values.
+     * If something went wrong that we didn't get any proper response, we default to valid.
+     * @return boolean  if the values are valid
+     */
     public boolean check(String key, String oldValue, String newValue) {
+        //preparing the http call
         PostMethod post = new PostMethod(this.url);
         HttpClient client = new HttpClient();
         NameValuePair[] pairs = new NameValuePair[3];
@@ -46,6 +58,7 @@ public class Callback {
             if (statusCode >= 300) {
                 logger.log(Level.ERROR,
                         String.format("url=%s did not return valid response code! code=%d", url, statusCode));
+                //If something went wrong that we didn't get any proper response, we default to valid.
                 return true;
             }
             String responseString = post.getResponseBodyAsString();
@@ -53,6 +66,7 @@ public class Callback {
         } catch (Exception e) {
             logger.log(Level.ERROR, String.format("Calling url=%s results in error! %s", url, e.getMessage()));
         }
+        // if some exception happens, we default to valid
         return true;
     }
 
