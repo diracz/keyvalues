@@ -1,18 +1,26 @@
 package com.twitter.model;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 public class Callback {
-    private String name;
+    static final Logger logger = Logger.getLogger(Callback.class);
+    private String id;
     private String url;
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public Callback(String name, String url) {
+    public Callback(String id, String url) {
+        this.id = id;
         this.url = url;
     }
 
@@ -23,8 +31,28 @@ public class Callback {
     public void setUrl(String url) {
         this.url = url;
     }
-    
-    public boolean check (String value) {
+
+    public boolean check(String key, String oldValue, String newValue) {
+        PostMethod post = new PostMethod(this.url);
+        HttpClient client = new HttpClient();
+        NameValuePair[] pairs = new NameValuePair[3];
+        pairs[0] = new NameValuePair("key", key);
+        pairs[1] = new NameValuePair("current", oldValue);
+        pairs[2] = new NameValuePair("requested", newValue);
+        post.setRequestBody(pairs);
+        
+        try {
+            int statusCode = client.executeMethod(post);
+            if (statusCode >= 300) {
+                logger.log(Level.ERROR,
+                        String.format("url=%s did not return valid response code! code=%d", url, statusCode));
+                return true;
+            }
+            String responseString = post.getResponseBodyAsString();
+            return "true".equalsIgnoreCase(responseString);
+        } catch (Exception e) {
+            logger.log(Level.ERROR, String.format("Calling url=%s results in error! %s", url, e.getMessage()));
+        }
         return true;
     }
 
@@ -37,10 +65,10 @@ public class Callback {
         if (getClass() != obj.getClass())
             return false;
         Callback other = (Callback) obj;
-        if (name == null) {
-            if (other.name != null)
+        if (id == null) {
+            if (other.id != null)
                 return false;
-        } else if (!name.equals(other.name))
+        } else if (!id.equals(other.id))
             return false;
         return true;
     }

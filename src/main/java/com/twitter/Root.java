@@ -1,16 +1,12 @@
 package com.twitter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -24,19 +20,18 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twitter.model.Callback;
 import com.twitter.util.CallbacksUtil;
 
 /**
- * Root resource (exposed at root path)
+ * Root resource
  */
 @Path("")
 public class Root {
-    final Logger logger = Logger.getLogger(App.class);
+    final Logger logger = Logger.getLogger(Root.class);
+    //From key to value map
     private static ConcurrentHashMap<String, String> map = new ConcurrentHashMap<>();
 
     public static final String VALUESTRING = "value=";
@@ -45,18 +40,21 @@ public class Root {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
+    public Root() {
+        logger.setLevel(Level.ALL);
+    }
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getRoot() {
-        System.out.println("Got root!");
-        return "map size is:" + map.size();
+        logger.log(Level.INFO, String.format("Get on root \n"));
+        return String.valueOf(map.size());
     }
 
     @GET
     @Path("{key : .+}")
     @Produces(MediaType.APPLICATION_JSON)
     public String getIt(@PathParam("key") String key) throws JsonGenerationException, JsonMappingException, IOException {
-        System.out.println("Got it!" + key);
         logger.log(Level.INFO, String.format("Get on %s \n", key));
         
         if (key.endsWith(CALLBACKSTRING)) {
@@ -105,16 +103,36 @@ public class Root {
         }
 
         String value = payload.substring(VALUESTRING.length());
-        if (!CallbacksUtil.isValidValue(key, value)) {
+        if (!CallbacksUtil.isValidValue(key, map.getOrDefault(key, null), value)) {
             throw new WebApplicationException(403);
         }
         synchronized (map) {
             map.put(key, value);
         }
-        System.out.format("Got it! %s=%s \n", key, value);
         return Response.status(201).build();
     }
     
+    @DELETE
+    @Path("{key : .+}") //Format should be something like: /my_key/callback/callback-1
+    public Response deleteId(@PathParam(value = "key") String key) {
+        String[] keyParts = key.split("/");
+        if (keyParts.length<3) {
+            throw new WebApplicationException(404);
+        }
+        String callbackId = keyParts[keyParts.length-1];
+        StringBuilder keySb = new StringBuilder(keyParts[0]);
+        for (int i = 1; i < keyParts.length - 2; i++) {
+            keySb.append("/");
+            keySb.append(keyParts[i]);
+        }
+
+        logger.log(Level.INFO, String.format("Trying to delete on key=%s with callbackId=%s\n", key, keySb.toString()));
+        if (CallbacksUtil.delete(keySb.toString(), callbackId)) {
+            return Response.noContent().build();
+        } else {
+            throw new WebApplicationException(400);
+        }
+    }
     
     
 }
