@@ -14,6 +14,9 @@ import org.apache.log4j.Logger;
 public class Callback {
     static final Logger logger = Logger.getLogger(Callback.class);
     
+    //This is for testing purpose - dependency injection to test fake callback responses.
+    private HttpClient client;
+    private PostMethod post;
     private String id;
     private String url;
 
@@ -38,6 +41,14 @@ public class Callback {
         this.url = url;
     }
 
+    public void setClient(HttpClient client) {
+        this.client = client;
+    }
+
+    public void setPost(PostMethod post) {
+        this.post = post;
+    }
+
     /**
      * Check the url of the callback, given the values.
      * If something went wrong that we didn't get any proper response, we default to valid.
@@ -45,8 +56,8 @@ public class Callback {
      */
     public boolean check(String key, String oldValue, String newValue) {
         //preparing the http call
-        PostMethod post = new PostMethod(this.url);
-        HttpClient client = new HttpClient();
+        PostMethod post = this.post == null ? new PostMethod(this.url) : this.post;
+        HttpClient client = this.client == null ? new HttpClient() : this.client;
         NameValuePair[] pairs = new NameValuePair[3];
         pairs[0] = new NameValuePair("key", key);
         pairs[1] = new NameValuePair("current", oldValue);

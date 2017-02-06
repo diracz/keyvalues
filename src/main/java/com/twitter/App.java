@@ -10,7 +10,7 @@ public class App {
     public static void main(String[] args) throws Exception {
         final Logger logger = Logger.getLogger(App.class);
         logger.setLevel(Level.ALL);
-        
+
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
 

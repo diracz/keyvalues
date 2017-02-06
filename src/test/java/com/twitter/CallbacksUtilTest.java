@@ -22,16 +22,15 @@ public class CallbacksUtilTest {
 
     @Test
     public void testIsValidCallback() {
-        assertTrue (CallbacksUtil.isValidCallback("http://example.com"));
-        assertTrue (CallbacksUtil.isValidCallback("http://example.com/checkers"));
-        assertTrue (CallbacksUtil.isValidCallback("http://example.co"));
-        assertTrue (CallbacksUtil.isValidCallback("http://example"));
-        assertTrue (CallbacksUtil.isValidCallback("https://example"));
-        assertFalse (CallbacksUtil.isValidCallback("example"));
-        assertFalse (CallbacksUtil.isValidCallback("www.example"));
-        assertFalse (CallbacksUtil.isValidCallback("www.example.com"));
-        assertFalse (CallbacksUtil.isValidCallback("htt:/www.example.com"));
+        assertTrue(CallbacksUtil.isValidCallback("http://example.com"));
+        assertTrue(CallbacksUtil.isValidCallback("http://example.com/checkers"));
+        assertTrue(CallbacksUtil.isValidCallback("http://example.co"));
+        assertTrue(CallbacksUtil.isValidCallback("http://example"));
+        assertTrue(CallbacksUtil.isValidCallback("https://example"));
+        assertFalse(CallbacksUtil.isValidCallback("example"));
+        assertFalse(CallbacksUtil.isValidCallback("www.example"));
+        assertFalse(CallbacksUtil.isValidCallback("www.example.com"));
+        assertFalse(CallbacksUtil.isValidCallback("htt:/www.example.com"));
     }
-    
-    
+
 }
